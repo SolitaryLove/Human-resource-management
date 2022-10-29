@@ -3,18 +3,20 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">
+          <img src="@/assets/common/login-logo.png" alt="">
+        </h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="mobile">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
+          ref="mobile"
           v-model="loginForm.mobile"
-          placeholder="Username"
-          name="username"
+          placeholder="Mobile"
+          name="mobile"
           type="text"
           tabindex="1"
           auto-complete="on"
@@ -41,11 +43,13 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button :loading="loading" type="primary" 
+        style="width:100%;margin-bottom:30px;" 
+        @click.native.prevent="handleLogin" class="login_btn">登录</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
+          <span style="margin-right:20px;"> mobile: 13800000002</span>
+          <span> password: 123456</span>
       </div>
 
     </el-form>
@@ -53,22 +57,14 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+import { validMobile } from '@/utils/validate'
 
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      /* if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      } */
-      callback();
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+    const validateMobile = (rule, value, callback) => {
+      if (!validMobile(value)) {
+        callback(new Error('请输入正确的手机号'))
       } else {
         callback()
       }
@@ -81,8 +77,8 @@ export default {
         password:'123456'
       },
       loginRules: {
-        mobile: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        mobile: [{ required: true, trigger: 'blur', validator: validateMobile }],
+        password: [{ required: true, trigger: 'blur', min:6, max:16, message:'密码长度在6-16位之间' }]
       },
       loading: false,
       passwordType: 'password',
@@ -109,18 +105,24 @@ export default {
       })
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
-            this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
-        } else {
-          console.log('error submit!!')
-          return false
+      this.$refs.loginForm.validate(async valid => {
+        if (valid){
+          // await 只能提取Promise对象成功的状态的值
+          // await 取代then()函数的，await 可以把成功的值提取出来留存原地
+          // 如何捕获 Promise 错误的状态呢？使用 try+catch 代码块
+          try{
+            // 用户登录并设置token
+            // actions方法无论何时都会返回Promise对象（自定义的，非axios的）
+            const res=await this.$store.dispatch('user/loginActions',this.loginForm);
+            // 登录结果提示信息
+            this.$message.success(res.message);
+            // 拿到登出时的回传的未遂地址的路径
+            this.$router.replace(this.$route.query.redirect||'/');
+          }catch(error){
+            // 一旦捕获到错误立刻停止try里代码向下执行
+            // 转而直接跳入catch大括号里执行，error形参接收的就是错误信息对象
+            console.dir(error);
+          }
         }
       })
     }
@@ -133,8 +135,8 @@ export default {
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
 $bg:#283443;
-$light_gray:#fff;
-$cursor: #fff;
+$light_gray: #68b0fe;  // 将输入框颜色改成蓝色
+$cursor: #68b0fe; // 将输入框光标改成蓝色
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
   .login-container .el-input input {
@@ -142,8 +144,21 @@ $cursor: #fff;
   }
 }
 
+.login_btn{
+  background:#407ffe;
+  height:64px;
+  line-height:32px;
+  font-size:24px;
+}
+.el-form-item__error {
+    font-size: 14px
+}
+
 /* reset element-ui css */
 .login-container {
+  background-image:url('~@/assets/common/login.jpg');// 设置背景图片
+  background-position:center;// 将图片位置设置为充满整个屏幕
+
   .el-input {
     display: inline-block;
     height: 47px;
@@ -152,7 +167,7 @@ $cursor: #fff;
     input {
       background: transparent;
       border: 0px;
-      -webkit-appearance: none;
+      appearance: none;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
       color: $light_gray;
@@ -168,7 +183,8 @@ $cursor: #fff;
 
   .el-form-item {
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.1);
+    // background: rgba(0, 0, 0, 0.1);
+    background:rgba(255,255,255,.7);
     border-radius: 5px;
     color: #454545;
   }

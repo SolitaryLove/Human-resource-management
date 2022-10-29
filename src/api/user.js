@@ -1,25 +1,38 @@
 import request from '@/utils/request'
 
-export function login(data) {
+/**
+ * @description 登录接口
+ * @param {string} mobile
+ * @param {string} password
+ * @returns {Promise}
+ */
+export function loginAPI(data) {
   return request({
-    // url: '/vue-admin-template/user/login',
     url:'/sys/login',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
-/* export function getInfo(token) {
+/**
+ * @description 获取用户资料
+ * @return {Promise}
+ */
+export function getUserProfileAPI(){
   return request({
-    url: '/vue-admin-template/user/info',
-    method: 'get',
-    params: { token }
+    url:'/sys/profile',
+    method:'POST'
   })
 }
 
-export function logout() {
+/**
+ * @description 获取员工基本信息（只为了拿到员工头像）
+ * @param {string} id
+ * @return {Promise}
+ */
+ export function getUserPhotoAPI(id){
   return request({
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
+    url:`/sys/user/${id}`,// 把员工id值携带在路径上传递给后端
+    method:'GET'
   })
-} */
+}

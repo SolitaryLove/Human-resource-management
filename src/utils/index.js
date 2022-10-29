@@ -1,8 +1,4 @@
 /**
- * Created by PanJiaChen on 16/11/18.
- */
-
-/**
  * Parse the time to string
  * @param {(Object|string|number)} time
  * @param {string} cFormat
@@ -114,4 +110,26 @@ export function param2Obj(url) {
     }
   })
   return obj
+}
+
+/**
+ * @description 平铺数据 → 树型数据
+ * @param {array} list 平铺数组
+ * @param {string} rootValue 本次要查找的目标id
+ * @returns {array}
+ */
+export function transTree(list,rootValue){
+  // list 平铺数组
+  // rootValue 本次要查找的目标id
+  const treeData=[];
+  list.forEach(item=>{
+    if(item.pid===rootValue){
+      const children=transTree(list,item.id);
+      if(children.length){
+        item.children=children;
+      }
+      treeData.push(item);
+    }
+  })
+  return treeData;
 }

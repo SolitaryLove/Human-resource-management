@@ -13,6 +13,19 @@ const name = defaultSettings.title || 'vue Admin Template' // page title
 // For example, Mac: sudo npm run
 // You can change the port by the following methods:
 // port = 9528 npm run dev OR npm run dev --port = 9528
+/* 
+  1. 解释：process.env是node环境内置的全局变量，可以直接使用
+    node.js+webpack环境下，console.log(process.env)打印在控制台中
+    环境变量：根据cli命令不同，值也会不同
+    好处：一套代码，可以适配2个环境（开发development，生产production）
+  2. 环境配置文件：是可以使用process.env所有值
+    .env.development → npm run dev 会把里面的值挂载到process.env对象上
+    .env.production → npm run build:prod会把里面的值挂载到process.env对象上
+  3. 使用的时候
+    (1)被webpack打包的前端代码中，我们只能使用VUE_APP_开头的环境变量（添加到环境变量配置文件中）
+      和一个内置的NODE_ENV值
+    (2)在node.js环境中，可以使用所有的环境变量
+*/
 const port = process.env.port || process.env.npm_config_port || 9528 // dev port
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
@@ -24,7 +37,7 @@ module.exports = {
    * In most cases please use '/' !!!
    * Detail: https://cli.vuejs.org/config/#publicpath
    */
-  publicPath: '/',
+  publicPath: process.env.NODE_ENV==='development'?'/':'./',
   outputDir: 'dist',
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
@@ -36,10 +49,15 @@ module.exports = {
       warnings: false,
       errors: true
     },
-    // before: require('./mock/mock-server.js')
+    // 代理配置
     proxy:{
+      // api表示如果我们的请求地址以/api开头的时候，就会触发代理机制
       '/api':{
-        target:'http://ihrm-java.itheima.net/',
+        target:'http://ihrm-java.itheima.net/',// 需要代理的地址
+        changeOrigin:true,
+      },
+      '/prod-api':{
+        target:'http://ihrm.itheima.net/',
         changeOrigin:true,
       }
     }

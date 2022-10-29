@@ -23,6 +23,15 @@
   position: relative;
   margin: 0 auto;
 }
+.el-dialog__header {
+  background: #66b1ff;
+  .el-dialog__title{
+    color:#ffffff;
+  }
+  .el-dialog__close{
+    color:#ffffff;
+  }
+}
 
 // refine element ui upload
 .upload-container {
