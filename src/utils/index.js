@@ -133,3 +133,25 @@ export function transTree(list,rootValue){
   })
   return treeData;
 }
+
+/**
+ * @description 将excel文件中的日期格式的内容转回成标准时间
+ * @param {date} numb 
+ * @param {string} format 
+ * @returns 
+ */
+export function formatExcelDate(numb, format = '/') {
+  // xlsx包读取表格里日期时会按照1900年01月01日进行天数的计算返回天数数字
+  // 43534天(2019年)是1900年(当时的UTC时间)到2019年过的天数
+  // 注意：(1)1901年之前，北京时间是东8时5分43秒，不是真正意义上的东8区，需要手动减去
+  // 注意：(2)获取表格的天数，1月0日也算了一天，需要手动减去
+  const time = new Date((numb - 25567) * 24 * 3600000 - 5 * 60 * 1000 - 43 * 1000 - 24 * 3600000)
+  time.setYear(time.getFullYear())
+  const year = time.getFullYear() + ''
+  const month = time.getMonth() + 1 + ''
+  const date = time.getDate() + ''
+  if (format && format.length === 1) {
+    return year + format + month + format + date
+  }
+  return year + (month < 10 ? '0' + month : month) + (date < 10 ? '0' + date : date)
+}

@@ -46,6 +46,16 @@ export const constantRoutes = [
     }]
   },
 
+  {
+    path:'/excel',
+    component:Layout,
+    hidden:true,
+    children:[{
+      path:'',
+      component:()=>import('@/views/excel')
+    }]
+  },
+
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
