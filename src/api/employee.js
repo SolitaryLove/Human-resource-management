@@ -50,3 +50,29 @@ export function importEmployeeAPI(data){
         data
     })
 }
+
+/**
+ * @description 保存员工信息
+ * @param {object} data {username,password}
+ * @returns 
+ */
+export function saveUserDetailByIdAPI(data){
+    return request({
+        url:`/sys/user/${data.id}`,
+        method:'PUT',
+        data,
+    })
+}
+
+/**
+ * @description 为员工分配角色
+ * @param {object} data 
+ * @returns 
+ */
+export function assignRolesAPI(data){
+    return request({
+        url:'/sys/user/assignRoles',
+        method:'PUT',
+        data,
+    })
+}

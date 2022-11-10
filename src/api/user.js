@@ -36,3 +36,14 @@ export function getUserProfileAPI(){
     method:'GET'
   })
 }
+
+/**
+ * @description 获取员工详细信息
+ * @param {string} id
+ * @return {Promise}
+ */
+export function getUserDetailByIdAPI(id){
+  return request({
+    url:`/sys/user/${id}`,
+  })
+}

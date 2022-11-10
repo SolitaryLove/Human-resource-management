@@ -73,15 +73,24 @@
             <el-button size="small" type="primary" @click="submitRole">确定</el-button>
         </el-row>
       </el-dialog>
+      <el-dialog title="分配权限" :visible.sync="dialogVisible" @close="setVisible">
+        <AssignPermission :roleId="roleId" @close="setVisible" @confirmFn="confirmFn"
+         :permissionList="permissionList" :roleIdsList="roleIdsList"/>
+      </el-dialog>
     </div>
   </div>
 </template>
   
 <script>
 import {getRolesAPI, getCompanyInfoAPI, addRoleAPI, 
-        getRoleIdAPI, updateRoleAPI, deleteRoleAPI} from '@/api'
+        getRoleIdAPI, updateRoleAPI, deleteRoleAPI, 
+        getPermissionListAPI, assignPermAPI} from '@/api'
 import {mapGetters} from 'vuex'
+import AssignPermission from './assignPermission.vue'
+import {transTree} from '@/utils'
+
 export default {
+  components:{AssignPermission},
   data(){
     return {
       activeName:'first',
@@ -104,6 +113,10 @@ export default {
         description:[{ required:true, message:'角色描述不能为空', trigger:'blur' }]
       },
       isEdit:false,// 编辑状态
+      roleId:'',
+      dialogVisible:false,
+      permissionList:[],// 权限点数组
+      roleIdsList:[],// 当前角色的权限点数组
     }
   },
   computed:{
@@ -114,6 +127,8 @@ export default {
     this.getRolesList();
     // 调用获取公司信息的方法
     this.getCompanyInfo();
+    // 调用获取权限点列表的方法
+    this.getPermissionListFn();
   },
   methods:{
     // 获取角色列表
@@ -150,6 +165,7 @@ export default {
           }
           // 重新获取权限列表数据
           this.getRolesList();
+          this.resetForm();
         }
       });
     },
@@ -169,8 +185,13 @@ export default {
       this.getRolesList();
     },
     // 设置角色
-    setRoles(data){
-
+    async setRoles(data){
+      // 清除数据，防止数据闪现
+      this.roleIdsList=[];
+      this.dialogVisible=true;
+      this.roleId=data.id;
+      const res=await getRoleIdAPI(data.id).catch(err=>console.dir(err));
+      this.roleIdsList=res?.data.permIds;
     },
     // 编辑角色
     async editRoles(data){
@@ -201,9 +222,26 @@ export default {
       }
       this.getRolesList();
     },
+    // 重置表单组件
     resetForm(){
       this.$refs.roleForm.resetFields();
       this.showDialog=false;
+    },
+    // 关闭弹框
+    setVisible(){
+      this.dialogVisible=false;
+    },
+    // 获取权限点列表
+    async getPermissionListFn(){
+      const res=await getPermissionListAPI().catch(err=>console.dir(err));
+      this.permissionList=transTree(res.data,'0');
+    },
+    // 分配权限菜单点击事件
+    async confirmFn(data){
+      const res=await assignPermAPI(data);
+      if(res.success) this.$message.success(res.message);
+      this.dialogVisible=false;
+      this.getRolesList();
     }
   }
 }

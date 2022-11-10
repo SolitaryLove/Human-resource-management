@@ -7,7 +7,7 @@
           <span>共 19 条记录</span>
         </template>
         <template v-slot:slot-right>
-          <el-button type="danger" size="small" @click="uploadExcelBtnFn">导入Excel</el-button>
+          <el-button v-power="'power'" type="danger" size="small" @click="uploadExcelBtnFn">导入Excel</el-button>
           <el-button type="success" size="small" @click="exportBtnFn">导出Excel</el-button>
           <el-button type="primary" size="small" @click="addEmpShowDialogFn">新增员工</el-button>
         </template>
@@ -19,7 +19,8 @@
           <el-table-column label="姓名" prop="username"></el-table-column>
           <el-table-column label="头像" prop="staffPhoto">
             <template v-slot="{row}">
-              <img :src="row.staffPhoto" alt="" style="border-radius:50%;width:65px;height:65px;">
+              <!-- <img :src="row.staffPhoto" alt="" style="border-radius:50%;width:65px;height:65px;"> -->
+              <ImageHolder class="staffPhoto" :src="row.staffPhoto" />
             </template>
           </el-table-column>
           <el-table-column label="手机号" prop="mobile"></el-table-column>
@@ -31,10 +32,10 @@
               {{formatTime(row.timeOfEntry)}}
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="280">
+          <el-table-column label="操作" width="280" fixed="right">
             <template v-slot="{row}">
-              <el-button type="text" size="small">查看</el-button>
-              <el-button type="text" size="small">分配角色</el-button>
+              <el-button type="text" size="small" @click="$router.push(`/employees/detail?id=${row.id}`)">查看</el-button>
+              <el-button type="text" size="small" @click="setEmp(row.id)">分配角色</el-button>
               <el-button type="text" size="small" @click="delEmp(row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -55,20 +56,26 @@
       <el-dialog title="新增员工" :visible.sync="showDialog" @close="addEmpDialogCloseFn">
         <EmpDialog :s-dialog.sync="showDialog" :treeData="treeData" @addEmpEV="addEmpFn" ref="addEmpDialog"/>
       </el-dialog>
+      <el-dialog title="分配角色" :visible.sync="showRoleDialog" @close="cancelDialog">
+        <AssignRoleDialog :userId="userId" :roleList="roleList" :roleIds="roleIds" 
+         @confirm="addRoleFn" @close="showRoleDialog=false" />
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import {getEmployeeListAPI, departmentsListAPI, addEmployeeAPI, delEmployeeAPI} from '@/api'
+import {getEmployeeListAPI, departmentsListAPI, addEmployeeAPI, 
+        delEmployeeAPI, getRolesAPI, getUserDetailByIdAPI, assignRolesAPI} from '@/api'
 import Employees from '@/api/constant/employees'
 import {transTree} from '@/utils'
 import EmpDialog from './components/empDialog.vue'
+import AssignRoleDialog from './components/assignRoleDialog.vue'
 import dayjs from 'dayjs'
 
 export default {
   name:'Employees',
-  components:{EmpDialog},
+  components:{EmpDialog, AssignRoleDialog},
   data(){
     return {
       query:{
@@ -80,6 +87,10 @@ export default {
       showDialog:false,
       treeData:[], // 部门列表
       allEmployeesList:[],// 所有的员工数据
+      showRoleDialog:false,
+      userId:'',// 当前操作的员工ID
+      roleList:[],// 角色列表
+      roleIds:[],// 当前员工所关联的角色
     }
   },
   created(){
@@ -87,6 +98,8 @@ export default {
     this.getEmployeeList();
     // 调用获取部门列表的方法
     this.getDepartments();
+    // 调用获取角色列表的方法
+    this.getRoleListFn();
   },
   methods:{
     // 请求获取员工列表
@@ -211,6 +224,35 @@ export default {
           bookType: 'xlsx',// 文件类型
         })
       });
+    },
+    // 关闭分配角色弹框事件
+    cancelDialog(){
+      this.showRoleDialog=false;
+    },
+    // 分配角色按钮点击事件
+    setEmp(id){
+      this.userId=id;
+      this.showRoleDialog=true;
+    },
+    // 获取角色列表
+    async getRoleListFn(){
+      const res=await getRolesAPI();
+      this.roleList=res.data.rows;
+      this.getUserRoles();
+    },
+    // 获取员工详情数据
+    async getUserRoles(){
+      const infoRes=await getUserDetailByIdAPI(this.userId);
+      if(!infoRes.success) return this.$message.error(infoRes.message);
+      this.roleIds=infoRes.data.roleIds;
+    },
+    // 员工角色分配
+    async addRoleFn(roleIds){
+      const res=await assignRolesAPI({id:this.userId,roleIds});
+      if(!res.success) return this.$message.error(res.message);
+      this.$message.success(res.message);
+      this.showRoleDialog=false;
+      this.getEmployeeList();
     }
   }
 }

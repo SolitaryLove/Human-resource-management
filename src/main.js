@@ -23,6 +23,9 @@ Vue.use(ElementUI, { locale })
 import GlobalComponents from '@/components'
 Vue.use(GlobalComponents);
 
+import Directive from './directive';
+Vue.use(Directive);
+
 Vue.config.productionTip = false
 
 new Vue({

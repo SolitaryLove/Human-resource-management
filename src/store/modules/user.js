@@ -48,6 +48,7 @@ const actions = {
   logoutActions({commit}){
     commit('REMOVE_TOKEN');
     commit('REMOVE_USER');
+    resetRouter();// 重置路由
   },
 
   // 获取用户信息
@@ -56,6 +57,7 @@ const actions = {
     const {data:userObj}=await getUserPhotoAPI(infoObj.userId);
     // 把两个对象都展开形成一个全新的对象传递给userInfo
     commit('SET_USER',{...infoObj,...userObj});
+    return infoObj.roles.menus;
   }
 }
 

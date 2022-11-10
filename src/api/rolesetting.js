@@ -78,3 +78,15 @@ export function deleteRoleAPI(id){
     })
 }
 
+/**
+ * @description 给角色分配权限
+ * @param {object} data 
+ * @returns {Promise}
+ */
+export function assignPermAPI(data){
+    return request({
+        url:'/sys/role/assignPrem',
+        method:'PUT',
+        data,
+    })
+}

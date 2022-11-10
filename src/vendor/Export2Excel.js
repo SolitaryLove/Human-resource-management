@@ -114,6 +114,7 @@ function s2ab(s) {
   return buf;
 }
 
+// 将 table 导出为 excel文件
 export function export_table_to_excel(id) {
   var theTable = document.getElementById(id);
   var oo = generateArray(theTable);
@@ -144,7 +145,7 @@ export function export_table_to_excel(id) {
     type: "application/octet-stream"
   }), "test.xlsx")
 }
-
+// 将 二维数组 导出为 excel文件
 export function export_json_to_excel({
   multiHeader = [],
   header,
