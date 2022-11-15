@@ -4,12 +4,13 @@
 
     <!-- <breadcrumb class="breadcrumb-container" /> -->
     <div class="app-breadcrumb">
-      合肥牛马网络科技有限公司
+      {{ $t('navbar.companyName') }}
       <span class="breadBtn">内测版</span>
     </div>
 
 
     <div class="right-menu">
+      <Language class="right-menu-item" />
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <!-- <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar"> -->
@@ -140,6 +141,9 @@ export default {
     float: right;
     height: 100%;
     line-height: 50px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
 
     &:focus {
       outline: none;
