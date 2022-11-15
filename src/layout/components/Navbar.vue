@@ -10,7 +10,10 @@
 
 
     <div class="right-menu">
+      <ScreenFull />
+
       <Language class="right-menu-item" />
+
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <!-- <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar"> -->
